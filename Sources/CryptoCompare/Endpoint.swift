@@ -25,17 +25,6 @@ public class DefaultAlamofireSession: Alamofire.Session {
     }()
 }
 
-public func JSONResponseDataFormatter(_ data: Data) -> Data {
-    do {
-        let dataAsJSON = try JSONSerialization.jsonObject(with: data)
-        let prettyData =  try JSONSerialization.data(withJSONObject: dataAsJSON, options: .prettyPrinted)
-        return prettyData
-    } catch {
-        return data
-    }
-}
-
-
 let endpoint = MoyaProvider<CryptoCompare>(
     session: DefaultAlamofireSession.sharedSession,
     plugins: [
@@ -45,29 +34,29 @@ let endpoint = MoyaProvider<CryptoCompare>(
 )
 
 public enum CryptoCompare {
-    case ticker(String)
+    case market(fsyms: [String], tsyms: [String])
 }
 
 extension CryptoCompare: TargetType{
     public var baseURL: URL {
-        return URL(string: "")!
+        return URL(string: "https://min-api.cryptocompare.com/data")!
     }
     public var path: String {
         switch self {
-        case .ticker: return "/market/data/ticker"
+        case .market(_, _): return "/pricemultifull"
         }
     }
 
     public var method: Moya.Method {
         switch self {
-        case .ticker: return .get
+        case .market(_, _): return .get
         }
     }
 
 
     public var task: Task {
         switch self {
-        case .ticker:
+        case .market(_, _):
             return .requestParameters(parameters: signedParams, encoding: URLEncoding.default)
         }
     }
@@ -77,9 +66,9 @@ extension CryptoCompare: Signaturable {
     public var requestParams: [String: Any] {
         var params: [String: Any] = [:]
         switch self {
-        case .ticker(let symbol):
-            params["symbol"] = symbol
-            params["version"] = "v1.0.0"
+        case .market(let fsyms, let tsyms):
+            params["fsyms"] = fsyms.joined(separator: ",")
+            params["tsyms"] = tsyms.joined(separator: ",")
             return params
         }
     }
