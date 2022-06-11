@@ -11,7 +11,7 @@ import RxSwift
 import RxMoya
 import Infura
 
-public final class CryptoCompareClient {
+public final class CryptoCompare {
 
     private let url = "https://min-api.cryptocompare.com/data"
     private let socketURL = "wss://streamer.cryptocompare.com/v2"
@@ -33,10 +33,10 @@ public final class CryptoCompareClient {
     }
 }
 
-extension CryptoCompareClient {
+extension CryptoCompare {
 
-    public func fetch(_ target: CryptoCompare) -> Observable<Market> {
-        return endpoint.rx
+    public func fetch(_ target: Endpoint) -> Observable<Market> {
+        return provider.rx
             .request(target)
             .asObservable()
             .mapObject(Market.self)
@@ -81,7 +81,7 @@ extension CryptoCompareClient {
 //    }
 }
 
-//extension CryptoCompareClient: WebSocketDelegate {
+//extension CryptoCompare: WebSocketDelegate {
 //
 //    public func didReceive(event: WebSocketEvent, client: WebSocket) {
 //        switch event {

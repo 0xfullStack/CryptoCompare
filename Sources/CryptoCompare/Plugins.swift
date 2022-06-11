@@ -22,7 +22,7 @@ extension Signaturable where Self: TargetType {
     }
 
     public var signatureType: SignatureType {
-        return .identity
+        return .identity(token: "Apikey f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620")
     }
 }
 
@@ -32,7 +32,7 @@ public enum SignatureType {
     case none
 
     /// Api should crypto
-    case identity
+    case identity(token: String)
 
     /// Api initial for login
     case initial
@@ -43,22 +43,16 @@ public enum SignatureType {
 public final class SignaturePlugin: PluginType {
 
     public init() {}
+    
     public func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         guard let signaturable = target as? Signaturable  else { return request }
 
         var request = request
-        
-        request.setValue("ios", forHTTPHeaderField: "client")
 
         switch signaturable.signatureType {
         case .initial: break
-        case .identity:
-//            let apiTimestamp = HttpParamEncodeTool.getTimestamp()
-//            request.addValue(apiTimestamp, forHTTPHeaderField: "apiTimestamp")
-//
-//            let apiSignature = HttpParamEncodeTool.getapiSignature(withParams: signaturable.signedParams)
-//            request.addValue(apiSignature, forHTTPHeaderField: "apiSignature")
-            break
+        case .identity(let token):
+            request.setValue(token, forHTTPHeaderField: "authorization")
         case .none: break
         }
         return request

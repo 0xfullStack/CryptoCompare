@@ -8,7 +8,8 @@
 import Foundation
 import ObjectMapper
 
-public enum MessageType: String, Codable {
+public enum MessageType: String {
+    
     // Channels
     // https://min-api.cryptocompare.com/documentation/websockets?key=Channels&cat=OrderbookL2&api_key=f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620
     case trade = "0"
@@ -31,23 +32,15 @@ enum MessageAction: String, Codable {
     case remove = "SubRemove"
 }
 
-public struct Market: Mappable {
-    public var raw: [String: [String: Detail]]
+public struct Market: ImmutableMappable {
+    public let raw: [String: [String: Detail]]
     
-    public init?(map: Map) {
-        do {
-            raw = try map.value("RAW")
-        } catch {
-            return nil
-        }
-    }
-    
-    mutating public func mapping(map: Map) {
-        raw <- map["RAW"]
+    public init(map: Map) throws {
+        raw = try map.value("RAW")
     }
 }
 
-public struct Detail: Codable {
+public struct Detail: ImmutableMappable {
     public let type: MessageType
     public let price: Float64?
     public let volume24Hour: Float64
@@ -70,21 +63,20 @@ public struct Detail: Codable {
             return nil
         }
     }
-
-    enum CodingKeys: String, CodingKey {
-        case type = "TYPE"
-        case price = "PRICE"
-        case volume24Hour = "VOLUME24HOUR"
-        case volumeDay = "VOLUMEDAY"
-        case circulatingSupply = "CIRCULATINGSUPPLY"
-        case circulatingSupplyMarketCap = "CIRCULATINGSUPPLYMKTCAP"
-
-        case open24Hour = "OPEN24HOUR"
-        case high24Hour = "HIGH24HOUR"
-        case low24Hour = "LOW24HOUR"
+    
+    public init(map: Map) throws {
+        type = try map.value("type")
+        price = try? map.value("PRICE")
+        volume24Hour = try map.value("VOLUME24HOUR")
         
-        case from = "FROMSYMBOL"
-        case to = "TOSYMBOL"
+        volumeDay = try map.value("VOLUMEDAY")
+        circulatingSupply = try? map.value("CIRCULATINGSUPPLY")
+        circulatingSupplyMarketCap = try? map.value("CIRCULATINGSUPPLYMKTCAP")
+        open24Hour = try? map.value("OPEN24HOUR")
+        high24Hour = try? map.value("HIGH24HOUR")
+        low24Hour = try? map.value("LOW24HOUR")
+        from = try map.value("FROMSYMBOL")
+        to = try map.value("TOSYMBOL")
     }
 }
 
@@ -177,7 +169,7 @@ public enum CryptoCompareEvent {
     var description: String {
         switch self {
         case .marketInfo(let syms):
-            return "\(CryptoCompare.self): \(syms)"
+            return "\(self): \(syms)"
         }
     }
 }

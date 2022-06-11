@@ -9,12 +9,7 @@ import Foundation
 import Alamofire
 import Moya
 
-public extension TargetType {
-    var sampleData: Data { return Data() }
-    var headers: [String: String]? { return nil }
-}
-
-public class DefaultAlamofireSession: Alamofire.Session {
+class DefaultAlamofireSession: Alamofire.Session {
     static let sharedSession: DefaultAlamofireSession = {
         let configuration = URLSessionConfiguration.default
         configuration.httpAdditionalHeaders = HTTPHeaders.default.dictionary
@@ -25,25 +20,22 @@ public class DefaultAlamofireSession: Alamofire.Session {
     }()
 }
 
-let endpoint = MoyaProvider<CryptoCompare>(
+let provider = MoyaProvider<Endpoint>(
     session: DefaultAlamofireSession.sharedSession,
-    plugins: [
-        NetworkLoggerPlugin(),
-        SignaturePlugin()
-    ]
+    plugins: [NetworkLoggerPlugin(), SignaturePlugin()]
 )
 
-public enum CryptoCompare {
+public enum Endpoint {
     case market(fsyms: [String], tsyms: [String])
 }
 
-extension CryptoCompare: TargetType{
+extension Endpoint: TargetType{
     public var baseURL: URL {
-        return URL(string: "https://min-api.cryptocompare.com/data")!
+        return URL(string: "https://min-api.cryptocompare.com")!
     }
     public var path: String {
         switch self {
-        case .market(_, _): return "/pricemultifull"
+        case .market(_, _): return "/data/pricemultifull"
         }
     }
 
@@ -53,16 +45,18 @@ extension CryptoCompare: TargetType{
         }
     }
 
-
     public var task: Task {
         switch self {
         case .market(_, _):
             return .requestParameters(parameters: signedParams, encoding: URLEncoding.default)
         }
     }
+    
+    public var sampleData: Data { return Data() }
+    public var headers: [String: String]? { return nil }
 }
 
-extension CryptoCompare: Signaturable {
+extension Endpoint {
     public var requestParams: [String: Any] {
         var params: [String: Any] = [:]
         switch self {
@@ -73,3 +67,5 @@ extension CryptoCompare: Signaturable {
         }
     }
 }
+
+extension Endpoint: Signaturable {}
