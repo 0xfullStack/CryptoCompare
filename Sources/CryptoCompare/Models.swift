@@ -65,7 +65,7 @@ public struct Detail: ImmutableMappable {
     }
     
     public init(map: Map) throws {
-        type = try map.value("type")
+        type = try map.value("TYPE")
         price = try? map.value("PRICE")
         volume24Hour = try map.value("VOLUME24HOUR")
         

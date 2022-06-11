@@ -39,7 +39,7 @@ extension CryptoCompare {
         return provider.rx
             .request(target)
             .asObservable()
-            .mapObject(Market.self)
+            .mapObject(Market.self, context: Datasource.cryptoCompare)
     }
 
 //    private func send(event: CryptoCompareEvent) throws {
