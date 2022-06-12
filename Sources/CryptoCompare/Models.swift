@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import ObjectMapper
 
 public enum MessageType: String, Codable {
     

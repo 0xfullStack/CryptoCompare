@@ -16,8 +16,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Modularize-Packages/Infura.git", branch: "master"),
-        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.0"),
-        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -26,8 +24,6 @@ let package = Package(
             name: "CryptoCompare",
             dependencies: [
                 .byName(name: "Infura"),
-                .byName(name: "Starscream"),
-                .byName(name: "Moya"), .product(name: "RxMoya", package: "Moya"),
             ]
         ),
         .testTarget(
