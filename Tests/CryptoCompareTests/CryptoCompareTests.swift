@@ -5,13 +5,12 @@ import RxSwift
 final class CryptoCompareTests: XCTestCase {
     
     private let bag = DisposeBag()
-    private let cryptoCompare = CryptoCompare()
     
     func testFetchingMarket() throws {
         
         let expectation = XCTestExpectation(description: "Fetching Market info failure")
         
-        cryptoCompare
+        CryptoCompare.shared
             .fetch(.market(fsyms: ["BTC", "ETH"], tsyms: ["USD"]))
             .subscribe { market in
                 print(market)
@@ -27,10 +26,23 @@ final class CryptoCompareTests: XCTestCase {
     func testSubscribeMarket() throws {
         
         let expectation = XCTestExpectation(description: "Subscribe Market info failure")
-        
-//        cryptoCompare
+        let syms: [(String, String)] = [
+            (fsym: "BTC", tsym: "USD")
+        ]
+
+        CryptoCompare
+            .shared
+            .on(.market(syms: syms))
+            .subscribe { data in
+                if let market = try? JSONDecoder().decode(Market.self, from: data) {
+                    print(market)
+                }
+//                expectation.fulfill()
+            } onError: { error in
+                print(error.localizedDescription)
+            }
+            .disposed(by: bag)
         
         wait(for: [expectation], timeout: TimeInterval(50))
     }
 }
-

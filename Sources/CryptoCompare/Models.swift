@@ -68,77 +68,21 @@ public struct Market: Codable {
     }
 }
 
-public enum ConnectionStatus: Equatable {
-    case connected
-    case disConnected
-    case error(Web3Error?)
+public enum Event {
+    case market(syms: [(String, String)])
 
-    public static func ==(lfs: ConnectionStatus, rhs: ConnectionStatus) -> Bool {
-        switch (lfs, rhs) {
-        case (.connected, .connected), (.disConnected, .disConnected), (.error(_), .error(_)):
-            return true
-        default:
-            return false
-        }
-    }
-
-    public static func !=(lfs: ConnectionStatus, rhs: ConnectionStatus) -> Bool {
-        switch (lfs, rhs) {
-        case (.connected, .connected), (.disConnected, .disConnected), (.error(_), .error(_)):
-            return false
-        default:
-            return true
-        }
-    }
-}
-
-public enum Web3Error: Error, LocalizedError {
-    case signingError
-    case socketDidNotConnect(Error?)
-    case socketConnectError(String?)
-    case invalidRequest
-    case invalidSubscribeEvent(String)
-    case wrongJsonFromat(Error?)
-    case decodeError(Error)
-    case unknown
-
-    public var errorDescription: String? {
+    func encode(action: Action) throws -> Data {
         switch self {
-        case .socketConnectError(let description):
-            return description
-        case .signingError:
-            return "Singing error"
-        case .socketDidNotConnect(let error):
-            return "Socket did not connect: \(String(describing: error?.localizedDescription))"
-        case .invalidRequest:
-            return "Invalid request"
-        case .wrongJsonFromat(let error):
-            return "Attempt to decode invalid json string, \(String(describing: error?.localizedDescription)) "
-        case .invalidSubscribeEvent(let description):
-            return "Invalid subscribe event: \(description)"
-        case .decodeError(let error):
-            return "Decode faiulre: \(error.localizedDescription)"
-        case .unknown:
-            return "Unknow error"
-        }
-    }
-}
-
-enum MessageAction: String, Codable {
-    case add = "SubAdd"
-    case remove = "SubRemove"
-}
-
-public enum CryptoCompareEvent {
-    case marketInfo(syms: [(String, String)])
-
-    func encode(action: MessageAction) throws -> Data {
-        switch self {
-        case .marketInfo(let syms):
+        case .market(let syms):
             let subs = syms.map { "\(messageType.rawValue)~\(Market.cccagg.rawValue)~\($0.0)~\($0.1)" }
             let topic = Topic(action: action.rawValue, subs: subs)
             return try JSONEncoder().encode(topic)
         }
+    }
+    
+    enum Action: String, Codable {
+        case add = "SubAdd"
+        case remove = "SubRemove"
     }
 
     private struct Topic: Codable {
@@ -154,15 +98,23 @@ public enum CryptoCompareEvent {
 
     var messageType: MessageType {
         switch self {
-        case .marketInfo(_):
+        case .market(_):
             return .aggregateIndexCCCAGG
         }
     }
 
     var description: String {
         switch self {
-        case .marketInfo(let syms):
+        case .market(let syms):
             return "\(self): \(syms)"
         }
+    }
+}
+
+struct EventFilter: Decodable {
+    let type: MessageType
+
+    enum CodingKeys: String, CodingKey {
+        case type = "TYPE"
     }
 }

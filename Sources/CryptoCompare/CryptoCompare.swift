@@ -13,14 +13,6 @@ import Infura
 
 public final class CryptoCompare {
 
-    private let url = "https://min-api.cryptocompare.com/data"
-    private let socketURL = "wss://streamer.cryptocompare.com/v2"
-    private let apiKey = "Apikey f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620"
-
-    @Published private(set) public var connectionStatus: ConnectionStatus = .disConnected
-    private var connectionStatusCallback: ((ConnectionStatus)->Void)? = nil
-    private var subscriptionsCallback: [(CryptoCompareEvent, (Result<Data, Web3Error>)->())] = []
-
     private lazy var webSocket: WebSocket = {
         var request = URLRequest(url: URL(string: socketURL)!)
         request.timeoutInterval = 5
@@ -28,9 +20,15 @@ public final class CryptoCompare {
         return WebSocket(request: request, compressionHandler: WSCompression())
     }()
 
-    public init() {
-//        webSocket.delegate = self
+    private init() {
+        webSocket.connect()
     }
+    
+    public var connectStatus: Observable<Bool> {
+        return webSocket.rx.connected.share()
+    }
+    
+    public static let shared = CryptoCompare()
 }
 
 extension CryptoCompare {
@@ -41,81 +39,40 @@ extension CryptoCompare {
             .asObservable()
             .mapObject([String: [String: Market]].self, atKeyPath: "RAW", context: Datasource.cryptoCompare)
     }
-
-//    private func send(event: CryptoCompareEvent) throws {
-//        guard connectionStatus == .connected else {
-//            return
-//        }
-//        let data = try event.encode(action: .add)
-//        webSocket.write(data: data)
-//    }
-//
-//    public func on(_ event: CryptoCompareEvent, callback: @escaping (Result<Data, Web3Error>)->()) {
-//
-//        if connectionStatus != .connected {
-//            connectionStatusCallback = { [weak self] connectionStatus in
-//                guard let self = self else { return }
-//
-//                switch connectionStatus {
-//                case .connected:
-//                    do {
-//                        try self.send(event: event)
-//                    } catch {
-//                        callback(.failure(.invalidSubscribeEvent(event.description + " " + error.localizedDescription)))
-//                    }
-//                case .error(let error):
-//                    callback(.failure(.socketDidNotConnect(error)))
-//                case.disConnected:
-//                    callback(.failure(.socketDidNotConnect(nil)))
-//                }
-//            }
-//            webSocket.connect()
-//        } else {
-//            do {
-//                try send(event: event)
-//            } catch {
-//                callback(.failure(.invalidSubscribeEvent(event.description + " " + error.localizedDescription)))
-//            }
-//        }
-//        subscriptionsCallback.append((event, callback))
-//    }
 }
 
-//extension CryptoCompare: WebSocketDelegate {
-//
-//    public func didReceive(event: WebSocketEvent, client: WebSocket) {
-//        switch event {
-//        case .connected(_):
-//            connectionStatus = .connected
-//            connectionStatusCallback?(connectionStatus)
-//        case .disconnected(_, _):
-//            connectionStatus = .disConnected
-//            connectionStatusCallback?(connectionStatus)
-//        case .text(let text):
-//            mapFilter(data: Data(text.utf8))
-//        case .error(let error):
-//            connectionStatus = .error(Web3Error.socketDidNotConnect(error))
-//            connectionStatusCallback?(connectionStatus)
-//        default: break
-//        }
-//    }
-//
-//    private func mapFilter(data: Data) {
-//        struct Filter: Decodable {
-//            let type: CryptoCompare.MessageType
-//
-//            enum CodingKeys: String, CodingKey {
-//                case type = "TYPE"
-//            }
-//        }
-//
-//        guard let filter = try? JSONDecoder().decode(Filter.self, from: data) else {
-//            return
-//        }
-//        guard let sub = subscriptionsCallback.filter({ $0.0.messageType == filter.type }).first else {
-//            return
-//        }
-//
-//        sub.1(.success(data))
-//    }
-//}
+extension CryptoCompare {
+    
+    public func on(_ event: Event) -> Observable<Data> {
+        connectStatus
+            .filter { $0 }
+            .flatMapLatest { [weak self] connected -> Observable<Void> in
+                guard let self = self else { return .never() }
+                let data = try event.encode(action: .add)
+                return self.webSocket.rx.write(data: data)
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .flatMapLatest { [weak self] _ -> Observable<String> in
+                guard let self = self else { return .never() }
+                return self.webSocket.rx.text
+            }
+            .flatMapLatest { [weak self] text -> Observable<Data> in
+                guard let self = self else { return .never() }
+                return self.filterCorrespondType(text: text, event: event)
+            }
+    }
+    
+    public func off(_ event: Event) -> Observable<Void> {
+        fatalError("Not implemented!!")
+    }
+    
+    private func filterCorrespondType(text: String, event: Event) -> Observable<Data> {
+        do {
+            let data = Data(text.utf8)
+            let messageType = try JSONDecoder().decode(EventFilter.self, from: data).type
+            return messageType == event.messageType ? .just(data) : .never()
+        } catch {
+            return .never()
+        }
+    }
+}

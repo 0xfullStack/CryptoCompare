@@ -25,13 +25,17 @@ let provider = MoyaProvider<Endpoint>(
     plugins: [NetworkLoggerPlugin(), SignaturePlugin()]
 )
 
+let url = "https://min-api.cryptocompare.com"
+let socketURL = "wss://streamer.cryptocompare.com/v2"
+let apiKey = "Apikey f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620"
+
 public enum Endpoint {
     case market(fsyms: [String], tsyms: [String])
 }
 
 extension Endpoint: TargetType{
     public var baseURL: URL {
-        return URL(string: "https://min-api.cryptocompare.com")!
+        return URL(string: url)!
     }
     public var path: String {
         switch self {
