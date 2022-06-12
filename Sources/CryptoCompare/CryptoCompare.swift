@@ -21,7 +21,10 @@ public final class CryptoCompare {
     
     private let bag = DisposeBag()
     private lazy var reachability: Reachability? = {
-        return Reachability()
+        Reachability()
+    }()
+    private lazy var reachabilitySignal: Observable<Bool> = {
+        reachability?.rx.isReachable ?? .never()
     }()
     private lazy var webSocket: WebSocket = {
         var request = URLRequest(url: URL(string: socketURL)!)
@@ -31,24 +34,30 @@ public final class CryptoCompare {
     }()
 
     private init() {
+        subscribeReachability()
         webSocket.connect()
         
-        let enterForground = UIApplication.rx.willEnterForeground.startWith(())
-        let reachable = Observable.merge(
-            webSocket.rx.connected,
-            reachability?.rx.isReachable ?? .never()
-        )
-        .debug("lsz1", trimOutput: true)
-        .filter { !$0 }
-        .debug("lsz2", trimOutput: true)
+        try? reachability?.startNotifier()
+    }
+    
+    private func subscribeReachability() {
         
-        Observable
-            .combineLatest(reachable, enterForground)
-            .debug("lsz3", trimOutput: true)
-            .withLatestFrom(connectStatus, resultSelector: { ($0.0, $0.1, $1) })
-            .subscribe(onNext: { [weak self] parameters in
+        reachabilitySignal
+            .filter { $0 }
+            .withLatestFrom(connectStatus)
+            .subscribe(onNext: { [weak self] socketIsConnected in
                 guard let self = self else { return }
-                guard !parameters.2 else { return }
+                guard !socketIsConnected else { return }
+                self.webSocket.connect()
+            })
+            .disposed(by: bag)
+
+        UIApplication
+            .rx.willEnterForeground
+            .withLatestFrom(connectStatus)
+            .subscribe(onNext: { [weak self] socketIsConnected in
+                guard let self = self else { return }
+                guard !socketIsConnected else { return }
                 self.webSocket.connect()
             })
             .disposed(by: bag)
