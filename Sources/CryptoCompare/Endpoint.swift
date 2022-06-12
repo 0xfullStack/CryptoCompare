@@ -68,4 +68,9 @@ extension Endpoint {
     }
 }
 
-extension Endpoint: Signaturable {}
+extension Endpoint: Signaturable {
+    
+    public var signatureType: SignatureType {
+        return .identity(token: "Apikey f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620")
+    }
+}

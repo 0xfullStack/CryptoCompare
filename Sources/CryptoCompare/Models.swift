@@ -8,7 +8,7 @@
 import Foundation
 import ObjectMapper
 
-public enum MessageType: String {
+public enum MessageType: String, Codable {
     
     // Channels
     // https://min-api.cryptocompare.com/documentation/websockets?key=Channels&cat=OrderbookL2&api_key=f3672c3f30bf06d32f91858ab64fd384d6bb025d2d03e9f9dddb0e2196223620
@@ -27,20 +27,7 @@ public enum MessageType: String {
     case heartBeat = "999"
 }
 
-enum MessageAction: String, Codable {
-    case add = "SubAdd"
-    case remove = "SubRemove"
-}
-
-public struct Market: ImmutableMappable {
-    public let raw: [String: [String: Detail]]
-    
-    public init(map: Map) throws {
-        raw = try map.value("RAW")
-    }
-}
-
-public struct Detail: ImmutableMappable {
+public struct Market: Codable {
     public let type: MessageType
     public let price: Float64?
     public let volume24Hour: Float64
@@ -63,20 +50,21 @@ public struct Detail: ImmutableMappable {
             return nil
         }
     }
-    
-    public init(map: Map) throws {
-        type = try map.value("TYPE")
-        price = try? map.value("PRICE")
-        volume24Hour = try map.value("VOLUME24HOUR")
+
+    enum CodingKeys: String, CodingKey {
+        case type = "TYPE"
+        case price = "PRICE"
+        case volume24Hour = "VOLUME24HOUR"
+        case volumeDay = "VOLUMEDAY"
+        case circulatingSupply = "CIRCULATINGSUPPLY"
+        case circulatingSupplyMarketCap = "CIRCULATINGSUPPLYMKTCAP"
+
+        case open24Hour = "OPEN24HOUR"
+        case high24Hour = "HIGH24HOUR"
+        case low24Hour = "LOW24HOUR"
         
-        volumeDay = try map.value("VOLUMEDAY")
-        circulatingSupply = try? map.value("CIRCULATINGSUPPLY")
-        circulatingSupplyMarketCap = try? map.value("CIRCULATINGSUPPLYMKTCAP")
-        open24Hour = try? map.value("OPEN24HOUR")
-        high24Hour = try? map.value("HIGH24HOUR")
-        low24Hour = try? map.value("LOW24HOUR")
-        from = try map.value("FROMSYMBOL")
-        to = try map.value("TOSYMBOL")
+        case from = "FROMSYMBOL"
+        case to = "TOSYMBOL"
     }
 }
 
@@ -134,6 +122,11 @@ public enum Web3Error: Error, LocalizedError {
             return "Unknow error"
         }
     }
+}
+
+enum MessageAction: String, Codable {
+    case add = "SubAdd"
+    case remove = "SubRemove"
 }
 
 public enum CryptoCompareEvent {

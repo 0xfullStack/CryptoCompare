@@ -24,7 +24,7 @@
       "location" : "https://github.com/Modularize-Packages/Infura.git",
       "state" : {
         "branch" : "master",
-        "revision" : "a16a09f98358b543e05eb2d6efb79f85350eb886"
+        "revision" : "3e67cde20aa3ff5b7c8ef21d1bc46ab5c1dd1c08"
       }
     },
     {
@@ -34,15 +34,6 @@
       "state" : {
         "revision" : "9b906860e3c3c09032879465c471e6375829593f",
         "version" : "15.0.0"
-      }
-    },
-    {
-      "identity" : "objectmapper",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tristanhimmelman/ObjectMapper.git",
-      "state" : {
-        "revision" : "0b96a734de3ea1c87374ae677064f86adb0716ec",
-        "version" : "4.2.0"
       }
     },
     {

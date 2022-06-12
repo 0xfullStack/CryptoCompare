@@ -5,17 +5,13 @@ import RxSwift
 final class CryptoCompareTests: XCTestCase {
     
     private let bag = DisposeBag()
+    private let cryptoCompare = CryptoCompare()
     
     func testFetchingMarket() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-//        XCTAssertEqual(CryptoCompare().text, "Hello, World!")
-        
         
         let expectation = XCTestExpectation(description: "Fetching Market info failure")
         
-        CryptoCompare()
+        cryptoCompare
             .fetch(.market(fsyms: ["BTC", "ETH"], tsyms: ["USD"]))
             .subscribe { market in
                 print(market)
@@ -27,4 +23,14 @@ final class CryptoCompareTests: XCTestCase {
         
         wait(for: [expectation], timeout: TimeInterval(50))
     }
+    
+    func testSubscribeMarket() throws {
+        
+        let expectation = XCTestExpectation(description: "Subscribe Market info failure")
+        
+//        cryptoCompare
+        
+        wait(for: [expectation], timeout: TimeInterval(50))
+    }
 }
+

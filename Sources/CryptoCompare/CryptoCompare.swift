@@ -35,11 +35,11 @@ public final class CryptoCompare {
 
 extension CryptoCompare {
 
-    public func fetch(_ target: Endpoint) -> Observable<Market> {
+    public func fetch(_ target: Endpoint) -> Observable<[String: [String: Market]]> {
         return provider.rx
             .request(target)
             .asObservable()
-            .mapObject(Market.self, context: Datasource.cryptoCompare)
+            .mapObject([String: [String: Market]].self, atKeyPath: "RAW", context: Datasource.cryptoCompare)
     }
 
 //    private func send(event: CryptoCompareEvent) throws {
