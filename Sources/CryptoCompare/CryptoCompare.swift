@@ -10,9 +10,19 @@ import Starscream
 import RxSwift
 import RxMoya
 import Infura
+import UIKit
 
 public final class CryptoCompare {
 
+    public static let shared = CryptoCompare()
+    public var connectStatus: Observable<Bool> {
+        webSocket.rx.connected.share()
+    }
+    
+    private let bag = DisposeBag()
+    private lazy var reachability: Reachability? = {
+        return Reachability()
+    }()
     private lazy var webSocket: WebSocket = {
         var request = URLRequest(url: URL(string: socketURL)!)
         request.timeoutInterval = 5
@@ -22,13 +32,27 @@ public final class CryptoCompare {
 
     private init() {
         webSocket.connect()
+        
+        let enterForground = UIApplication.rx.willEnterForeground.startWith(())
+        let reachable = Observable.merge(
+            webSocket.rx.connected,
+            reachability?.rx.isReachable ?? .never()
+        )
+        .debug("lsz1", trimOutput: true)
+        .filter { !$0 }
+        .debug("lsz2", trimOutput: true)
+        
+        Observable
+            .combineLatest(reachable, enterForground)
+            .debug("lsz3", trimOutput: true)
+            .withLatestFrom(connectStatus, resultSelector: { ($0.0, $0.1, $1) })
+            .subscribe(onNext: { [weak self] parameters in
+                guard let self = self else { return }
+                guard !parameters.2 else { return }
+                self.webSocket.connect()
+            })
+            .disposed(by: bag)
     }
-    
-    public var connectStatus: Observable<Bool> {
-        return webSocket.rx.connected.share()
-    }
-    
-    public static let shared = CryptoCompare()
 }
 
 extension CryptoCompare {

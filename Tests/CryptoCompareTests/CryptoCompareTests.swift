@@ -43,6 +43,6 @@ final class CryptoCompareTests: XCTestCase {
             }
             .disposed(by: bag)
         
-        wait(for: [expectation], timeout: TimeInterval(50))
+        wait(for: [expectation], timeout: TimeInterval(10000))
     }
 }
