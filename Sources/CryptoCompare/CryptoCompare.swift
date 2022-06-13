@@ -34,7 +34,7 @@ public final class CryptoCompare {
     }()
 
     private init() {
-//        subscribeReachability()
+        subscribeReachability()
         webSocket.connect()
         
         try? reachability?.startNotifier()
