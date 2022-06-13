@@ -41,8 +41,8 @@ public final class CryptoCompare {
     }
     
     private func subscribeReachability() {
-        let reachable = reachabilitySignal.filter { $0 }.map { _ in () }
-        let enterForeground = UIApplication.rx.willEnterForeground.asObservable()
+        let reachable = reachabilitySignal.filter { $0 }.startWith(true).map { _ in () }
+        let enterForeground = UIApplication.rx.willEnterForeground.asObservable().startWith(())
         Observable
             .combineLatest(connectStatus, reachable, enterForeground)
             .subscribe(onNext: { [weak self] (connectStatus, reachable, enterForeground) in
