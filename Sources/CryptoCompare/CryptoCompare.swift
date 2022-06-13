@@ -42,13 +42,12 @@ public final class CryptoCompare {
     
     private func subscribeReachability() {
         let reachable = reachabilitySignal.filter { $0 }.map { _ in () }
-        let enterForeground = UIApplication.rx.willEnterForeground.asObservable() 
+        let enterForeground = UIApplication.rx.willEnterForeground.asObservable()
         Observable
-            .merge(reachable, enterForeground)
-            .withLatestFrom(connectStatus)
-            .subscribe(onNext: { [weak self] socketIsConnected in
+            .combineLatest(connectStatus, reachable, enterForeground)
+            .subscribe(onNext: { [weak self] (connectStatus, reachable, enterForeground) in
                 guard let self = self else { return }
-                guard !socketIsConnected else { return }
+                guard !connectStatus else { return }
                 self.webSocket.connect()
             })
             .disposed(by: bag)
