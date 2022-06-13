@@ -23,10 +23,10 @@ public final class CryptoCompare {
     private lazy var reachability: Reachability? = {
         Reachability()
     }()
-    private lazy var reachabilitySignal: Observable<Bool> = {
+    public lazy var reachabilitySignal: Observable<Bool> = {
         reachability?.rx.isReachable ?? .never()
     }()
-    private lazy var webSocket: WebSocket = {
+    public lazy var webSocket: WebSocket = {
         var request = URLRequest(url: URL(string: socketURL)!)
         request.timeoutInterval = 5
         request.setValue(apiKey, forHTTPHeaderField: "authorization")
@@ -34,7 +34,7 @@ public final class CryptoCompare {
     }()
 
     private init() {
-        subscribeReachability()
+//        subscribeReachability()
         webSocket.connect()
         
         try? reachability?.startNotifier()
