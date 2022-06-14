@@ -6,10 +6,11 @@
 //
 
 import Foundation
-import Starscream
 import RxSwift
 import RxMoya
-import Infura
+import ReactiveX
+import Reachability
+import Starscream
 import UIKit
 
 public final class CryptoCompare {
@@ -60,7 +61,7 @@ extension CryptoCompare {
         return provider.rx
             .request(target)
             .asObservable()
-            .mapObject([String: [String: Market]].self, atKeyPath: "RAW", context: Datasource.cryptoCompare)
+            .mapObject([String: [String: Market]].self, atKeyPath: "RAW")
     }
 }
 

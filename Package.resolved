@@ -10,30 +10,21 @@
       }
     },
     {
-      "identity" : "alamofirenetworkactivitylogger",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/konkab/AlamofireNetworkActivityLogger.git",
-      "state" : {
-        "revision" : "8db9d4e27176905298e7215e3d800e349cdfa30b",
-        "version" : "3.4.0"
-      }
-    },
-    {
-      "identity" : "infura",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Modularize-Packages/Infura.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "53f548f1c64c0a2489397023f1fd7e4277566cdc"
-      }
-    },
-    {
       "identity" : "moya",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Moya/Moya.git",
       "state" : {
         "revision" : "9b906860e3c3c09032879465c471e6375829593f",
         "version" : "15.0.0"
+      }
+    },
+    {
+      "identity" : "reachability",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Modularize-Packages/Reachability.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "68d0c10f5e4d7cd76585868b50ced10e37cfdfaf"
       }
     },
     {
@@ -46,6 +37,15 @@
       }
     },
     {
+      "identity" : "reactivex",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Modularize-Packages/ReactiveX.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "5b81c5c6487664af3ae85aebfc38e989bd0e2731"
+      }
+    },
+    {
       "identity" : "rxswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
@@ -55,12 +55,20 @@
       }
     },
     {
-      "identity" : "rxswiftext",
+      "identity" : "serialization",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/RxSwiftCommunity/RxSwiftExt",
+      "location" : "https://github.com/Modularize-Packages/Serialization.git",
       "state" : {
-        "revision" : "a42af9caeab63f2dbde318f1f3dc424f05871a37",
-        "version" : "6.1.0"
+        "branch" : "main",
+        "revision" : "6399f4439e572680673214ff831ca7f727d583d8"
+      }
+    },
+    {
+      "identity" : "socket.io-client-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/socketio/socket.io-client-swift",
+      "state" : {
+        "revision" : "a1ed825835a2d8c2555938e96557ccc05e4bebf3"
       }
     },
     {

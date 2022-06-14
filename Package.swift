@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CryptoCompare",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v13), .macOS(.v12), .tvOS(.v15)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -15,7 +15,7 @@ let package = Package(
             targets: ["CryptoCompare"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Modularize-Packages/Infura.git", branch: "master"),
+        .package(url: "https://github.com/Modularize-Packages/ReactiveX.git", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -23,7 +23,7 @@ let package = Package(
         .target(
             name: "CryptoCompare",
             dependencies: [
-                .byName(name: "Infura"),
+                .byName(name: "ReactiveX")
             ]
         ),
         .testTarget(
