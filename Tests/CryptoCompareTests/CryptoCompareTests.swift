@@ -34,7 +34,7 @@ final class CryptoCompareTests: XCTestCase {
             .shared
             .on(.market(syms: syms))
             .subscribe { data in
-                if let market = try? JSONDecoder().decode(Market.self, from: data) {
+                if let market = try? JSONDecoder().decode(CryptoCompare.Market.self, from: data) {
                     print(market)
                 }
 //                expectation.fulfill()
