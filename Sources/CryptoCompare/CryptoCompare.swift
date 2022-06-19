@@ -36,9 +36,7 @@ public final class CryptoCompare {
     }()
 
     private init() {
-        subscribeReachability()
         webSocket.connect()
-        
         try? reachability?.startNotifier()
     }
     
@@ -68,7 +66,7 @@ extension CryptoCompare {
 
 extension CryptoCompare {
     
-    public func on(_ event: Event) -> Observable<Data> {
+    public func subscribe(_ event: Event) -> Observable<Data> {
         return connectStatus
             .filter { $0 }
             .flatMapLatest { [weak self] connected -> Observable<Void> in
@@ -88,7 +86,17 @@ extension CryptoCompare {
             }
     }
     
-    public func off() {
+    public func unsubscribe(_ event: Event) -> Observable<Void> {
+        return connectStatus
+            .filter { $0 }
+            .flatMapLatest { [weak self] connected -> Observable<Void> in
+                guard let self = self else { return .never() }
+                let data = try event.encode(action: .remove)
+                return self.webSocket.rx.write(data: data)
+            }
+    }
+    
+    public func disconnect() {
         reachabilityBag = DisposeBag()
         webSocket.disconnect()
     }

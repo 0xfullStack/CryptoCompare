@@ -32,7 +32,7 @@ final class CryptoCompareTests: XCTestCase {
 
         CryptoCompare
             .shared
-            .on(.market(syms: syms))
+            .subscribe(.market(syms: syms))
             .subscribe { data in
                 if let market = try? JSONDecoder().decode(CryptoCompare.Market.self, from: data) {
                     print(market)
@@ -42,10 +42,14 @@ final class CryptoCompareTests: XCTestCase {
                 print(error.localizedDescription)
             }
             .disposed(by: bag)
+
+        sleep(5)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) {
-            CryptoCompare.shared.off()
-        }
+        CryptoCompare
+            .shared
+            .unsubscribe(.market(syms: syms))
+            .subscribe()
+            .disposed(by: bag)
         
         wait(for: [expectation], timeout: TimeInterval(10000))
     }
