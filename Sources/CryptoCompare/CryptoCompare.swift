@@ -36,7 +36,6 @@ public final class CryptoCompare {
     }()
 
     private init() {
-        webSocket.connect()
         try? reachability?.startNotifier()
     }
     
@@ -99,6 +98,11 @@ extension CryptoCompare {
     public func disconnect() {
         reachabilityBag = DisposeBag()
         webSocket.disconnect()
+    }
+    
+    public func connect() {
+        reachabilityBag = DisposeBag()
+        webSocket.connect()
     }
     
     private func filterCorrespondType(text: String, event: Event) -> Observable<Data> {

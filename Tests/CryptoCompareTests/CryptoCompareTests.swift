@@ -42,14 +42,17 @@ final class CryptoCompareTests: XCTestCase {
                 print(error.localizedDescription)
             }
             .disposed(by: bag)
-
-        sleep(5)
         
-        CryptoCompare
-            .shared
-            .unsubscribe(.market(syms: syms))
-            .subscribe()
-            .disposed(by: bag)
+        CryptoCompare.shared.connect()
+        
+
+//        sleep(5)
+//
+//        CryptoCompare
+//            .shared
+//            .unsubscribe(.market(syms: syms))
+//            .subscribe()
+//            .disposed(by: bag)
         
         wait(for: [expectation], timeout: TimeInterval(10000))
     }
