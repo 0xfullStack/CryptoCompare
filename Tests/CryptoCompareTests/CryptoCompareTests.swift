@@ -43,6 +43,10 @@ final class CryptoCompareTests: XCTestCase {
             }
             .disposed(by: bag)
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) {
+            CryptoCompare.shared.off()
+        }
+        
         wait(for: [expectation], timeout: TimeInterval(10000))
     }
 }

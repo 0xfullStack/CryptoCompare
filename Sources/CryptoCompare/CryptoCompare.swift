@@ -20,7 +20,8 @@ public final class CryptoCompare {
         webSocket.rx.connected.share()
     }
     
-    private let bag = DisposeBag()
+    private var reachabilityBag = DisposeBag()
+    
     private lazy var reachability: Reachability? = {
         Reachability()
     }()
@@ -51,7 +52,7 @@ public final class CryptoCompare {
                 guard !connectStatus else { return }
                 self.webSocket.connect()
             })
-            .disposed(by: bag)
+            .disposed(by: reachabilityBag)
     }
 }
 
@@ -68,11 +69,12 @@ extension CryptoCompare {
 extension CryptoCompare {
     
     public func on(_ event: Event) -> Observable<Data> {
-        connectStatus
+        return connectStatus
             .filter { $0 }
             .flatMapLatest { [weak self] connected -> Observable<Void> in
                 guard let self = self else { return .never() }
                 let data = try event.encode(action: .add)
+                self.subscribeReachability()
                 return self.webSocket.rx.write(data: data)
             }
             .observe(on: MainScheduler.asyncInstance)
@@ -86,8 +88,9 @@ extension CryptoCompare {
             }
     }
     
-    public func off(_ event: Event) -> Observable<Void> {
-        fatalError("Not implemented!!")
+    public func off() {
+        reachabilityBag = DisposeBag()
+        webSocket.disconnect()
     }
     
     private func filterCorrespondType(text: String, event: Event) -> Observable<Data> {
