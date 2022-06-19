@@ -40,6 +40,7 @@ public final class CryptoCompare {
     }
     
     private func subscribeReachability() {
+        releaseBag()
         let reachable = reachabilitySignal.filter { $0 }.startWith(true).map { _ in () }
         let enterForeground = UIApplication.rx.willEnterForeground.asObservable().startWith(())
         Observable
@@ -64,7 +65,9 @@ extension CryptoCompare {
 }
 
 extension CryptoCompare {
-    
+    private func releaseBag() {
+        reachabilityBag = DisposeBag()
+    }
     public func subscribe(_ event: Event) -> Observable<Data> {
         connectStatus
             .filter { $0 }
@@ -96,12 +99,12 @@ extension CryptoCompare {
     }
     
     public func disconnect() {
-        reachabilityBag = DisposeBag()
+        releaseBag()
         webSocket.disconnect()
     }
     
     public func connect() {
-        reachabilityBag = DisposeBag()
+        releaseBag()
         webSocket.connect()
     }
     
