@@ -67,7 +67,7 @@ extension CryptoCompare {
 extension CryptoCompare {
     
     public func subscribe(_ event: Event) -> Observable<Data> {
-        return connectStatus
+        connectStatus
             .filter { $0 }
             .flatMapLatest { [weak self] connected -> Observable<Void> in
                 guard let self = self else { return .never() }
@@ -87,7 +87,7 @@ extension CryptoCompare {
     }
     
     public func unsubscribe(_ event: Event) -> Observable<Void> {
-        return connectStatus
+        connectStatus
             .filter { $0 }
             .flatMapLatest { [weak self] connected -> Observable<Void> in
                 guard let self = self else { return .never() }
